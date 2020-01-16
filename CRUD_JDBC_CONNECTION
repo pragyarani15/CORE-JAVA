@@ -1,0 +1,364 @@
+package PracticeJDBC;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+class Employee{
+	
+	private String name;
+	private int salary;
+private	String designation;
+	Employee(String name,int salary,String designation){
+		
+		this.name = name;
+		this.salary = salary;
+		this.designation = designation;
+	}
+	String getName() {
+		return this.name;
+	}
+	String getDesignation() {
+		return this.designation;
+	}
+	int getSalary() {
+		return this.salary;
+	}
+	
+	
+	@Override
+	public String toString() {
+		return String.format("name: %s,\tsalary%d, \tdesignation: %s",this.name,this.salary,this.designation);
+	}
+	
+}
+interface Iemployee{
+	void addEmployee(List<Employee> list);
+
+	void UpdateEmployee(List<Employee> list,String name);
+
+	void deleteEmployee(int id);
+
+	void showEmployee();
+}
+
+class EmployeeFactory implements Iemployee{
+
+	@Override
+	public void addEmployee(List<Employee> list) {
+		// TODO Auto-generated method stub
+		Statement query;
+		try {
+			query = JDBCConnection.con.createStatement();	
+			for(Employee e : list) {
+		String insert = String.format("insert into Emp(name, salary, designation) values('%s','%d', '%s')", e.getName(), e.getSalary(), e.getDesignation());
+		int rowsAffected = query.executeUpdate(insert);
+		System.out.println(rowsAffected );
+		}
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return;
+		
+	}
+
+	@Override
+	public void UpdateEmployee(List<Employee> list,String name1) {
+		Common.print("hellooooooooo");
+		// TODO Auto-generated method stub
+//		String name = Common.getString("name:\t");
+//		int salary = Common.getInt("salary:\t");
+//		String desig = Common.getString("Designation:\t");
+		String q = "Update Emp Set name = ?,salary = ?,designation = ? Where name = ?";
+		PreparedStatement st;
+		try {
+			st = JDBCConnection.con.prepareStatement(q);
+			for(Employee e:list) {
+		st.setString(1,e.getName());
+		st.setInt(2, e.getSalary());
+		st.setString(3,e.getDesignation());
+		st.setString(4, name1);
+			}
+		int row = st.executeUpdate();
+		System.out.println(row );
+		}catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return;
+	}
+
+	@Override
+	public void deleteEmployee(int id) {
+		// TODO Auto-generated method stub
+		String q = "Delete from Emp where id = ?"; 
+		PreparedStatement ps;
+		try {
+			ps = JDBCConnection.con.prepareStatement(q); 
+		ps.setInt(1, id);
+	int row = 	ps.executeUpdate();
+	System.out.println(row );	
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+	}
+
+	@Override
+	public void showEmployee()  {
+		// TODO Auto-generated method stub
+		String  q = "Select * from Emp";
+		PreparedStatement ps;
+		try {
+			ps = JDBCConnection.con.prepareStatement(q);
+		 
+		ResultSet rs= ps.executeQuery();
+	while(rs.next()) {
+		Common.print("id: "+rs.getInt(1)+"\tname: "+rs.getString(2)+"\tsalary: "+rs.getInt(3)+"\tDesignation: "+rs.getString(4));
+	}
+		
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} 
+	}
+}
+class SwitchCase{
+	public static boolean operation(int ch) {
+		switch(ch) {
+		case 1: 
+			JDBCConnection.adding();
+			break;
+		case 2:
+			JDBCConnection.updating();
+		    break;
+		case 3:
+			JDBCConnection.deleteEntry();
+			break;
+		case 4:
+			JDBCConnection.show();
+			break;
+		default:
+				return false;
+		}
+		
+		return true;
+		
+	}
+		
+}
+
+class Menu{
+	public static void option() {
+	String choice = "------Employee Managment System-------\n";
+	choice +="Add Employee---------------------press 1\n";
+	choice +="Update Employee---------------------press 2\n";
+	choice +="Delete Employee---------------------press 3\n";
+	choice +="Display Employee---------------------press 4\n";
+	choice +="Any other kye consider as EXIT";
+	Common.print(choice);
+	}
+}
+
+
+
+
+
+public class JDBCConnection {
+	static EmployeeFactory ef = new EmployeeFactory();
+	static	Connection con=null;
+static	List<Employee> list = new ArrayList<Employee>();;
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+	
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+		con  =	DriverManager.getConnection("jdbc:mysql://localhost/EmpDetail", "root", "root");
+		//System.out.println("hi sql");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			
+			//indata();
+			// UpdateData();
+			//UpdatedataInput();
+			//deleteData();
+		//	display();
+			boolean b = true;
+		do {	
+			Menu.option();
+			int ch = Common.getInt("Choice:\t");
+			 b = SwitchCase.operation(ch);
+		}while(b!=false);
+//		//	adding();
+//			show();
+//			//updating();
+//			deleteEntry();
+//			show();
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	//----------------------------------Normal JDBC without using class---------------
+public static void insertdata() throws SQLException {
+		
+		String name = Common.getString("Name:\t");
+		int salary = Common.getInt("Salary:\t");
+		String desig = Common.getString("Designation:\t");
+		Statement query = con.createStatement();
+		String insert = String.format("insert into Emp(name, salary, designation) values('%s','%d', '%s')", name, salary, desig);
+		int rowsAffected = query.executeUpdate(insert);
+		System.out.println(rowsAffected );
+		}
+
+public static void UpdateData() throws SQLException {
+	
+	String q = "UPDATE Emp set name = 'neha' where id = 1";
+	Statement query = con.createStatement();
+	int row = query.executeUpdate(q);	
+	System.out.println(row );
+}
+public static void UpdatedataInput() throws SQLException {
+	int id = Common.getInt("id:\t");
+	String name = Common.getString("name:\t");
+	int salary = Common.getInt("salary:\t");
+	String desig = Common.getString("Designation:\t");
+	String q = "Update Emp Set name = ?,salary = ?,designation = ? Where id = ?";
+	PreparedStatement st = con.prepareStatement(q);
+	st.setString(1,name);
+	st.setInt(2, salary);
+	st.setString(3,desig);
+	st.setInt(4, id);
+	int row = st.executeUpdate();
+	System.out.println(row );
+
+}
+
+public static void deleteData() throws SQLException {
+	int id = Common.getInt("id:\t");
+	String q = "Delete from Emp where id = ?"; 
+	PreparedStatement ps = con.prepareStatement(q); 
+	ps.setInt(1, id);
+int row = 	ps.executeUpdate();
+System.out.println(row );	
+}
+
+public static void display() throws SQLException {
+	String  q = "Select * from Emp";
+	PreparedStatement ps=con.prepareStatement(q); 
+	ResultSet rs= ps.executeQuery();
+while(rs.next()) {
+	Common.print("id: "+rs.getInt(1)+"\tname: "+rs.getString(2)+"\tsalary: "+rs.getInt(3)+"\tDesignation: "+rs.getString(4));
+}
+}
+//----------------------------End--------------------------
+//----------------------------JDBC USING CLASS-------------------
+public static void adding() {
+	
+	String name = Common.getString("Name:\t");
+	String desig = Common.getString("Designation:\t");
+	int salary = Common.getInt("salary:\t");
+	Employee emp = new Employee(name,salary,desig);
+	list.add(emp);
+	ef.addEmployee(list);
+//	for(Employee e : list) {
+//		System.out.println(e);
+//	}
+return;	
+}
+
+public static void updating() {
+	String name = Common.getString("Name you want to update:\t");
+		for(Employee e : list) {
+		System.out.println("upadation");
+	//	System.out.println(e.getName());
+		if(e.getName()==name) {
+			System.out.println("upadation");
+			String upname = Common.getString("updated Name:\t");
+			String desig = Common.getString("updated Designation:\t");
+			int salary = Common.getInt("updated salary:\t");
+			Employee emp = new Employee(upname,salary,desig);
+		//	Common.print("Error1");
+			list.add(emp);	
+			//Common.print("Error2");
+			ef.UpdateEmployee(list,name);
+			//Common.print("Error3");
+		}
+	}
+	
+}
+
+public static void deleteEntry() {
+	int id = Common.getInt("Id you want to delete");
+	ef.deleteEmployee(id);
+	
+}
+
+public static void show() {
+	ef.showEmployee();
+}
+}
+
+
+//COMMON CLASS
+package PracticeJDBC;
+
+//import java.io.*;
+import java.util.Scanner;
+
+//
+//public class Common {
+//
+//	public static void main(String[] args) {
+//		// TODO Auto-generated method stub
+//		
+//
+//	}
+//
+//}
+class Common{
+	
+	static Scanner sc = new Scanner(System.in);
+	static void print(String msg) {
+		System.out.println(msg);
+	}
+	public static int getInt(String msg) {
+		print(msg);
+		int num = sc.nextInt();
+		return num; 
+	}
+	public static String getString(String msg) {
+		print(msg);
+		String s = sc.next();
+		return s; 
+	}
+	public static double getDouble(String msg) {
+		print(msg);
+		double d = sc.nextDouble();
+		return d; 
+		
+	}
+		
+		
+	
+	
+}
+
+
