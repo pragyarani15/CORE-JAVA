@@ -1,0 +1,189 @@
+
+
+import java.util.Scanner;
+import java.util.*;
+class Expense_Data{
+	private int id;
+	private Double amount;
+	private String details;
+	private Date date;
+	Expense_Data(int id,Double amount,String details,Date date){
+		this.id=id;
+		this.amount=amount;
+		this.details=details;
+		this.date=date;
+	}
+	int getId(){
+		return id;
+	}
+	String getDetails(){
+		return details;
+	}
+	double getAmount(){
+		return amount;
+	}
+	public String toString(){
+		return String.format("Expense_Id: %d\n amount: %f\n Expense_Details: %s\n",id,amount,details);
+	}
+}
+
+*****************************************************************************
+class Expense_Manager{
+	protected Expense_Data[] allExpanses;
+	int size=0;
+	Expense_Manager(int size){
+			allExpanses = new Expense_Data[size];
+			
+	} 
+	public void addNewExpense(Expense_Data ex){
+		for(int i=0;i<allExpanses.length;i++)
+		{
+			if(allExpanses[i]==null){
+				allExpanses[i]=ex;
+				return;
+			}
+		}
+
+	}
+	public void updateExpense(Expense_Data exp,int id){
+			for(int i=0;i<allExpanses.length;i++){
+				if(allExpanses[i].getId()==id){
+					allExpanses[i]=exp;
+					return;
+				}
+			}
+
+	}
+	public void deleteExpense(int id){
+		for(int i=0;i<allExpanses.length;i++){
+			if(allExpanses[i].getId()==id)
+			allExpanses[i]=null;
+			return ;
+		}
+
+		
+	}
+	public Expense_Data[] findExpense(Integer detail)
+	{
+		//Expense_Data[] search=new Expense_Data[size];
+		int order=0;
+		for(int i=0;i<allExpanses.length;i++){
+			if(allExpanses[i].getId()==detail)
+			return allExpanses;
+
+		}
+		return null;
+	}
+	public Expense_Data[] show(){
+				return allExpanses;
+	}
+}
+class ExpenseFactory{
+	Scanner reader = new Scanner(System.in);
+	public static Expense_Manager expenseManager(String type){
+		if(type.equals("Array")){
+			int size = MyConsole.getNumber("Enter the no of Expenses to hold");
+			return new Expense_Manager(size);
+		}
+		return null;
+	}
+
+}
+
+
+***************************************************************
+class ExpenseUI{
+static Expense_Manager mgr=ExpenseFactory.expenseManager("Array");
+
+
+public static void main(String[] expen) {
+	
+	if(mgr==null){
+		System.out.printf("something wrong");
+		return;
+	}
+	int value = 1;
+	do{
+	System.out.printf("ENTER YOUR CHOICE:- \n 1.ADDING EXPENSE\n 2.DISPALY EXPENSE\n 3.FINDING EXPENSE\n 4.DELETE\n 5.EXIT \n");
+	Scanner reader = new Scanner(System.in);
+	int choice= reader.nextInt();
+	switch(choice){
+	case 1: addingExpense();
+			break;
+	case 2: Display();
+			break;
+	case 3:findingExpense();
+			break;
+	case 4:Delete();
+			break;
+	case 5:Update();
+			break;		
+	default:
+				return;
+  }
+  System.out.printf("PRESS ANY KEY FOR CONTINUE EXCEPT ZERO\n");
+  value = reader.nextInt();
+}while(value!=0);
+}
+	public static void addingExpense(){
+		Scanner reader = new Scanner(System.in);
+		System.out.printf("enter the ID of the Expense\n");
+		int id =reader.nextInt();
+		System.out.printf("enter the Expense details\n");
+		String details=System.console().readLine();
+		System.out.printf("enter the Expense amount\n");
+		Double amount=reader.nextDouble();
+		System.out.printf("enter the DAY MONTH YEAR\n");
+		int dd=reader.nextInt();
+		int mm=reader.nextInt();
+		int yy=reader.nextInt();
+		Date dte=new Date(yy,mm,dd);
+		Expense_Data ex=new Expense_Data(id,amount,details,dte);
+		mgr.addNewExpense(ex);
+		System.out.printf("Record added succesfully\n");
+	}
+	public static void findingExpense(){
+		System.out.printf("Enter the detail or part of detail of expense to be find\n");
+		Integer id=Integer.parseInt(System.console().readLine());
+		try{
+		Expense_Data [] expenses = mgr.findExpense(id);
+		for(Expense_Data ex:expenses){
+			if(ex!=null)
+				System.out.println(ex);
+		}
+		}catch(Exception ex){
+			System.out.println(ex);
+		}
+	}
+	public static void Display(){
+		System.out.printf("DETAILS ARE:-\n");
+		Expense_Data [] expenses=mgr.show();
+		 for(int i=0 ;i<expenses.length;i++){
+				System.out.println(expenses[i]);
+
+		}
+	}
+	public static void Delete(){
+		System.out.printf("Enter the id for delete\n");
+		Integer id=Integer.parseInt(System.console().readLine());
+		mgr.deleteExpense(id);
+		}
+	public static void Update(){
+		Scanner reader = new Scanner(System.in);
+		System.out.printf("Enter the id\n");
+		Integer id=Integer.parseInt(System.console().readLine());
+		System.out.printf("Enter the details\n");
+		String details=(System.console().readLine());
+		System.out.printf("Enter the amount\n");
+		double amount=Double.parseDouble(System.console().readLine());
+		System.out.printf("enter the DAY MONTH YEAR\n");
+		int dd=reader.nextInt();
+		int mm=reader.nextInt();
+		int yy=reader.nextInt();
+		Date dte=new Date(yy,mm,dd);
+		Expense_Data ex=new Expense_Data(id,amount,details,dte);
+		mgr.updateExpense(ex,id);
+		return;
+
+	}	
+}
