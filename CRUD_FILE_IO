@@ -1,0 +1,104 @@
+import java.util.Scanner;
+interface IEmployee{
+	void addEmp(Employee ex);
+	void DisplayEmp(Employee ex);
+	void updateEmp();
+	
+}
+class Employee{
+	
+	private int id;
+	static int size;
+	private String name;
+    Employee(int s){
+    	size = s;
+    }
+	Employee(int id,String name){
+		this.id=id;
+		this.name=name;
+	}
+	int getId() {
+		return id;
+	}
+	String getname() {
+		return name;
+	}
+	public String toString(){
+		return String.format("id: %d\n name: %s", this.id, this.name);
+	}
+}
+class Employee_Repository implements IEmployee{
+	Employee[] empArray =new Employee[Employee.size];
+	@Override
+	public void addEmp(Employee ex) {
+	for(int i=0;i<empArray.length;i++) {
+		if(empArray[i] == null) {
+			empArray[i]=ex;
+		}
+	}return;
+		
+	}
+
+	@Override
+	public void updateEmp() {
+	
+		
+	}
+
+	@Override
+	public void DisplayEmp(Employee ex) {
+		for(int i=0;i<empArray.length;i++) {
+			System.out.println(ex);
+	}
+	}
+	
+}
+class Selection{
+
+	static void selectionFunction(int ch) {
+	switch(ch) {
+	
+	case 1:FileIo.adding();
+		break;
+	case 2:FileIo.updating();
+		break;
+	case 3:FileIo.Delete();
+		break;
+	default: break;	
+	}
+	}
+}
+public  class FileIo{
+	//System.out.println("ENTER THE NUMBER OF EMPLOYEE");
+	static Scanner sc=new Scanner(System.in);
+	static int size=sc.nextInt();
+	static Employee emp = new Employee(size);
+	
+	public static IEmployee obj=new Employee_Repository();
+	Selection sl=new Selection();
+	public static void main(String[] pragya) {
+		
+		System.out.println("ENTER YOUR CHOICE \n 1.ADD \n 2.UPDATE\n 3.DISPLAY \n");
+		
+		int choice=sc.nextInt();
+		Selection.selectionFunction(choice);
+	}
+	public static void Delete() {
+	
+		
+	}
+	public static void adding() {
+	//	Scanner sc=new Scanner(System.in);
+		System.out.println("ENTER THE ID");
+		System.out.println("ENTER THE NAME");
+		 int id=sc.nextInt();
+		String name=sc.next();
+		Employee e=new Employee(id,name);
+		
+		obj.addEmp(e);
+		obj.DisplayEmp(e);
+		
+	}
+	public static void updating() {
+	}
+}
